@@ -146,7 +146,7 @@
                         <div class="mt-5 sm:mt-6">
                             <button type="button"
                                 class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                                @click="moveCard()">Move to phases</button>
+                                @click="UpdatePhaseCard(kanban.users[kanban.movingTaskModal.user_id || kanban.self.id])">Move to phases</button>
                         </div>
                     </div>
                 </generic-modal>
@@ -270,16 +270,17 @@
 </template>
 
 <script setup>
-import {ref, onMounted, onUnmounted, nextTick, computed} from 'vue'
+import {ref, onMounted, onUnmounted, nextTick, computed, getCurrentInstance} from 'vue'
 import { useKanbanStore } from '../stores/kanban'
 import { DialogTitle, Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { CheckIcon, ChevronUpDownIcon, TrashIcon, PencilIcon } from '@heroicons/vue/20/solid'
 import { sha256 } from 'js-sha256';
 
-
 const kanban = useKanbanStore()
 const selected = ref(null)
 const errors = ref({})
+const instance = getCurrentInstance();
+
 
 const getAvatar = function (user) {
     if (user.profile_picture_url !== null) {
@@ -371,27 +372,41 @@ const addCard = async () => {
 }
 
 // update phase code start here
-const moveCard = async () => {
+
+
+const UpdatePhaseCard = async (task) => {   
+    console.log(kanban.movingTaskModal.phase_id);
+    const checkboxes = document.querySelectorAll('input.default-checkbox:checked');
+    const checkedValues = Array.from(checkboxes).map(checkbox => checkbox.value);    
+    task.phaseCheck=checkedValues;
+    task.phase_id  = kanban.movingTaskModal.phase_id;
     try {
-        const response = await axios.post('/api/phases', kanban.movingTaskModal);
-        kanban.movingTask = false;
-        kanban.movingTaskModal = {
-            name: '',
-            phase_id: All,            
-        };
-        await kanban.refreshTasks();
+        const response = await axios.post('/api/phase_update', task);
+        
+        // response indicates a successful closure condition
+        if (response.status === 200) {
+
+            // Uncheck all the checkboxes
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+
+            kanban.movingTask = false; // Close the model
+            kanban.movingTaskModal = {
+                name: null,
+                phase_id: null,
+                user_id: null
+            };
+            await kanban.refreshTasks();
+        }
     } catch (error) {
         if (error.response.status === 422) {
             errors.value = error.response.data.errors;
         }
     }
+};
 
-    //const {res, error, status} = await kanban.moveCard();
-    // await kanban.moveCard();
 
-    
-
-}
 // update phase code end here
 
 const updateTask = async () => {

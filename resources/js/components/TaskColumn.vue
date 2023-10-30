@@ -4,7 +4,9 @@
         <div class="flex items-center justify-between">
             <h2 class="text-lg text-zinc-100 font-black mb-3">{{ kanban.phases[props.phase_id].name }} ({{ tasks_count }})</h2>
             <div class="flex items-center mb-4">
-                <input id="default-checkbox" type="checkbox" @change="moveCards" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <!-- <input id="default-checkbox" type="checkbox" value="{{ props.phase_id }}" @change="moveCards" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"> -->
+                <input :id="'default-checkbox-' + props.phase_id" type="checkbox" :value="kanban.phases[props.phase_id].id" @change="moveCards"
+  class="default-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
             </div>
             <PlusIcon
                 @click="createTask()"

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePhaseRequest;
 use App\Http\Requests\UpdatePhaseRequest;
 use App\Models\Phase;
+use App\Models\Task;
 
 class PhaseController extends Controller
 {
@@ -55,6 +56,19 @@ class PhaseController extends Controller
     {
         $phase->phase_id = $request->input('phase_id');
         $phase->save();
+    }
+
+      /**
+     * Update the specified resource in storage.
+     */
+    public function phase_update(UpdatePhaseRequest $request, Phase $phase)
+    {   
+        $tasks = Task::whereIn('phase_id', $request->phaseCheck)->get();           
+        $phase_id = $request->phase_id;  // Assign the phase_id to a variable
+        
+        $tasks->each(function ($task) use ($phase_id) { // Use the phase_id variable from the parent scope
+            $task->update(['phase_id' => $phase_id]); // update phase_id here
+        });     
     }
 
     /**

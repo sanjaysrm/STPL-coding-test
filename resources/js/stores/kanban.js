@@ -21,8 +21,9 @@ export const useKanbanStore = defineStore('kanban', {
             user_id: null,
         },
         movingTaskModal: {
-            name:'',            
-            phase_id: null,            
+            taskPhase:'',
+            user_id:'', 
+            id:''   ,                  
           },
         self: null,
     }
@@ -83,17 +84,6 @@ export const useKanbanStore = defineStore('kanban', {
       },
 
     
-      async moveCard(id, phase) {
-        try {
-            const response = await axios.post('/api/phases', {
-                type: All,
-                phase_id: null,   
-            });
-
-        } catch (error) {
-            console.error('There was an error fetching the tasks!', error);
-        }
-    },
 
       async deletePhase(id){
           try {
@@ -105,7 +95,7 @@ export const useKanbanStore = defineStore('kanban', {
           }
       },
 
-    async refreshTasks() {
+    async refreshTasks() {        
       try {
           const response = await axios.get('/api/tasks');
           const originalTasks = response.data;
